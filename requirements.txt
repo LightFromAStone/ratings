@@ -1,0 +1,11 @@
+blinker
+click
+Flask
+Flask-DebugToolbar
+Flask-SQLAlchemy
+itsdangerous
+Jinja2
+MarkupSafe
+psycopg2-binary
+SQLAlchemy
+Werkzeug
