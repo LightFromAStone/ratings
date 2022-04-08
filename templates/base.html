@@ -7,6 +7,14 @@
 <body>
     <!-- Show flashed messages -->
   {% with messages = get_flashed_messages() %}
+
+  {% if session.get('logged_in_user_id') %}
+  <p><a href="/logout">Log Out</a></p>
+  {% else %}
+  <p><a href="/register">Register</a></p>
+  <p><a href="/login">Log In</a></p>
+  {% endif %}
+
   {% for message in messages %}
       <div class="alert alert-warning">{{ message }}</div>
   {% endfor %}

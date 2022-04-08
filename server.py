@@ -1,5 +1,6 @@
 """Movie Ratings."""
 
+import email
 from jinja2 import StrictUndefined
 
 from flask import Flask, render_template, redirect, request, flash, session
@@ -25,12 +26,42 @@ def index():
     return render_template('homepage.html')
 
 
-@app.route('/users')
-def user_list():
-    """Show list of users"""
+@app.route('/login', methods=['GET'])
+def show_login():
+    """Show Log In Form"""
+    return render_template('login.html')
+
+
+@app.route('/login', methods=['POST'])
+def process_login():
+    """Logs a user in"""
     
-    users = User.query.all()
-    return render_template('user_list.html', users=users)
+    email = request.form['email']
+    password = request.form['password']
+    message = 'Email not found'
+    
+    user = User.query.filter_by(email=email).first()
+    if user:
+        if user.password == password:
+            session['logged_in_user_id'] = user.user_id
+            flash('Login Successfull')
+            return redirect('/')
+        else:
+            message = 'Incorrect Password!'
+            
+    flash(message)
+    return redirect('/login')
+
+
+@app.route("/logout")
+def process_logout():
+    """Logs user out of site if logged in"""
+    
+    if session.get('logged_in_user_id'):
+        del session['logged_in_user_id']
+        flash('Logged out')
+        
+    return redirect('/')
 
 
 @app.route('/register', methods=['GET'])
@@ -51,16 +82,25 @@ def register_user():
     user = User.query.filter_by(email=email).first()
     if user:
         flash('User already exists')
-        print('user not registered - exists')
         return redirect('/register')
     else:
         user = User(email=email, password=password, age=age, zipcode=zipcode)
         db.session.add(user)
         db.session.commit()
+        user = User.query.filter_by(email=email, password=password).one()
+        session['logged_in_user_id'] = user.user_id
         flash('Registered Successfully')
-        print('registered successfully')
     
     return redirect('/')
+
+
+@app.route('/users')
+def user_list():
+    """Show list of users"""
+    
+    users = User.query.all()
+    return render_template('user_list.html', users=users)
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
