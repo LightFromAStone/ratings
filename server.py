@@ -102,6 +102,17 @@ def user_list():
     return render_template('user_list.html', users=users)
 
 
+@app.route('/users/<user_id>')
+def show_user(user_id):
+    """Shows page of a particular user"""
+    
+    user = User.query.filter_by(user_id=user_id).one()
+    user.email = ''
+    user.password = ''
+    ratings = Rating.query.filter_by(user_id=user_id).join(Movie).order_by(Movie.title).all()
+    return render_template('user.html', user=user, ratings=ratings)
+
+
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the
     # point that we invoke the DebugToolbarExtension
